@@ -33,9 +33,9 @@ npx expo start
 | Pilotos | `GET https://api.openf1.org/v1/drivers?session_key=latest` |
 | Detalhes | `GET https://api.openf1.org/v1/drivers?session_key={sessao}&driver_number={numero}` |
 
-Logo da Fórmula 1 em branco, adaptado de [f1logo.svg](https://github.com/mark-boots/f1-2026-assets/blob/main/assets/f1logo.svg) para a tela inicial.
 
-## Onde está cada parte (para a apresentação)
+
+## 
 
 | Assunto | Arquivo |
 |---|---|

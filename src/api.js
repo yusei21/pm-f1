@@ -65,9 +65,9 @@ function formatarVolta(segundos) {
   return `${minutos}:${(segundos % 60).toFixed(3).padStart(6, '0')}`;
 }
 
-// Todas as corridas realizadas nesta temporada
+// Três últimas corridas realizadas nesta temporada
 export async function buscarCorridas(numero) {
-  const sessoes = await listarCorridasDaTemporada();
+  const sessoes = (await listarCorridasDaTemporada()).slice(0, 3);
   const corridas = [];
 
   // Pequenos grupos evitam disparar dezenas de chamadas de uma vez

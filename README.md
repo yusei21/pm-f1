@@ -1,45 +1,47 @@
 # PM F1 — Pilotos de Fórmula 1
 
-App em **React Native (Expo)** que consome a API REST **[OpenF1](https://openf1.org)**. Dados históricos são gratuitos e não exigem autenticação; dados em tempo real exigem assinatura.
+Aplicativo em **React Native (Expo)** que consulta a API REST [OpenF1](https://openf1.org).
+
 Atividade Complementar da 3ª Nota — Programação para Dispositivos Móveis (IFMA).
 
-## Como rodar
+## Como executar
 
-1. Instale o [Node.js](https://nodejs.org) (versão LTS).
-2. No celular, instale o app **Expo Go** (Play Store / App Store).
-3. No terminal do VS Code, dentro da pasta do projeto:
+1. Instale o [Node.js](https://nodejs.org) e o **Expo Go** no celular.
+2. Na pasta do projeto, execute:
 
 ```bash
 npm install
 npx expo start
 ```
 
-4. Escaneie o QR Code com o Expo Go (celular e PC na mesma rede Wi-Fi).
-   - Se não conectar, use: `npx expo start --tunnel`
+3. Escaneie o QR Code com o Expo Go (celular e computador na mesma rede Wi-Fi).
+
+Se não conectar, experimente `npx expo start --tunnel`.
 
 ## Telas
 
-| Tela | O que faz |
+| Tela | Funcionalidade |
 |---|---|
-| **Home** | Logo + botões *Listar Pilotos* e *Sobre* |
-| **Pilotos** | Lista os pilotos com `FlatList` (foto, nome, equipe, número). Cada item é clicável |
-| **Detalhes** | Mostra os dados do piloto clicado |
-| **Sobre** | Nome da API, descrição e link |
+| **Home** | Acesso à lista de pilotos e à tela Sobre |
+| **Pilotos** | Lista de pilotos com foto, nome, equipe e número |
+| **Detalhes** | Foto, número, sigla, equipe e posição no campeonato; seção expansível com todas as corridas já realizadas na temporada atual, posição final e melhor volta do piloto |
+| **Sobre** | Informações sobre a API |
 
-## Endpoints usados
+## API utilizada
 
-| Tela | Endpoint |
-|---|---|
-| Pilotos | `GET https://api.openf1.org/v1/drivers?session_key=latest` |
-| Detalhes | `GET https://api.openf1.org/v1/drivers?session_key={sessao}&driver_number={numero}` |
+Os dados são consultados em `https://api.openf1.org/v1`:
 
+- `drivers`: lista e detalhes dos pilotos.
+- `sessions`: corridas da temporada atual.
+- `championship_drivers`: posição do piloto no campeonato.
+- `session_result`: resultado do piloto em cada corrida.
+- `laps`: tempos de volta para identificar a melhor volta pessoal na corrida.
 
+As consultas usam `fetch`, em `src/api.js`. Algumas informações podem não estar disponíveis na API; nesses casos, a tela mostra `—`. A lista de corridas considera apenas as já encerradas.
 
-## 
+## Estrutura principal
 
-| Assunto | Arquivo |
-|---|---|
-| Consumo da API (`fetch`) | `src/api.js` |
-| Roteamento (React Navigation) | `App.js` + `navigation.navigate(...)` nas telas |
-| FlatList | `src/screens/PilotosScreen.js` |
-| useState / useEffect | `src/screens/PilotosScreen.js` e `src/screens/DetalhesScreen.js` |
+- `App.js`: navegação entre as telas.
+- `src/api.js`: consultas à OpenF1.
+- `src/screens/PilotosScreen.js`: listagem com `FlatList`.
+- `src/screens/DetalhesScreen.js`: informações e resultados expansíveis do piloto.

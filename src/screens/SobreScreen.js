@@ -9,8 +9,9 @@ export default function TelaSobre({ navigation: navegacao }) {
       <Text style={estilos.texto}>
         A OpenF1 é uma API REST com dados da Fórmula 1 desde 2023: pilotos, sessões, voltas,
         pit stops, clima e outros. Dados históricos são gratuitos e não exigem cadastro.
-        Dados em tempo real exigem assinatura. Neste app usamos o endpoint /drivers para
-        listar os pilotos e mostrar os detalhes de cada um.
+        Dados em tempo real exigem assinatura. Neste app usamos /drivers para listar
+        e detalhar pilotos, /sessions para consultar as corridas da temporada e
+        /championship_drivers para obter a posição dos pilotos no campeonato.
       </Text>
 
       <TouchableOpacity onPress={() => Linking.openURL('https://openf1.org')}>

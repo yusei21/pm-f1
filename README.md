@@ -24,7 +24,7 @@ Se não conectar, experimente `npx expo start --tunnel`.
 |---|---|
 | **Home** | Acesso à lista de pilotos e à tela Sobre |
 | **Pilotos** | Lista de pilotos com foto, nome, equipe e número |
-| **Detalhes** | Foto, número, sigla, equipe e posição no campeonato; seção expansível com as três últimas corridas já realizadas na temporada atual, posição final e melhor volta do piloto |
+| **Detalhes** | Foto, número, sigla, equipe e posição no campeonato |
 | **Sobre** | Informações sobre a API |
 
 ## API utilizada
@@ -34,14 +34,12 @@ Os dados são consultados em `https://api.openf1.org/v1`:
 - `drivers`: lista e detalhes dos pilotos.
 - `sessions`: corridas da temporada atual.
 - `championship_drivers`: posição do piloto no campeonato.
-- `session_result`: resultado do piloto em cada corrida.
-- `laps`: tempos de volta para identificar a melhor volta pessoal na corrida.
 
-As consultas usam `fetch`, em `src/api.js`. Algumas informações podem não estar disponíveis na API; nesses casos, a tela mostra `—`. A lista de corridas considera apenas as já encerradas.
+As consultas usam `fetch`, em `src/api.js`. Se a posição no campeonato não estiver disponível, a tela mostra `—`.
 
 ## Estrutura principal
 
 - `App.js`: navegação entre as telas.
 - `src/api.js`: consultas à OpenF1.
 - `src/screens/PilotosScreen.js`: listagem com `FlatList`.
-- `src/screens/DetalhesScreen.js`: informações e resultados expansíveis do piloto.
+- `src/screens/DetalhesScreen.js`: informações e posição do piloto no campeonato.

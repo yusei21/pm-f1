@@ -1,47 +1,100 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
-import { buscarPiloto } from '../api';
+import {
+  View, Text, Image, TouchableOpacity, ScrollView,
+  ActivityIndicator, StyleSheet
+} from 'react-native';
+import { buscarPiloto, buscarPosicao, buscarCorridas } from '../api';
 
-// Tela de Detalhes: recebe o número do piloto pela rota e busca os dados dele na API
 export default function DetalhesScreen({ route, navigation }) {
-  const { numero, sessionKey } = route.params; // parâmetros enviados pela tela de Pilotos
+  const { numero, sessionKey } = route.params;
   const [piloto, setPiloto] = useState(null);
+  const [posicao, setPosicao] = useState(null);
+  const [corridas, setCorridas] = useState([]);
+  const [aberto, setAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState(null);
+  const [carregandoCorridas, setCarregandoCorridas] = useState(false);
+  const [erroCorridas, setErroCorridas] = useState(false);
 
   useEffect(() => {
     buscarPiloto(numero, sessionKey)
-      .then((dados) => setPiloto(dados))
-      .catch((e) => setErro(e.message))
+      .then(setPiloto)
+      .catch(() => setPiloto(null))
       .finally(() => setCarregando(false));
+
+    buscarPosicao(numero).then(setPosicao).catch(() => setPosicao(null));
   }, [numero, sessionKey]);
 
+  async function alternarCorridas() {
+    setAberto(!aberto);
+    if (aberto || corridas.length || carregandoCorridas) return;
+
+    setCarregandoCorridas(true);
+    setErroCorridas(false);
+    try {
+      setCorridas(await buscarCorridas(numero));
+    } catch {
+      setErroCorridas(true);
+    } finally {
+      setCarregandoCorridas(false);
+    }
+  }
+
   if (carregando) {
-    return <ActivityIndicator size="large" color="#fff" style={styles.container} />;
+    return <ActivityIndicator style={styles.container} size="large" color="#fff" />;
+  }
+
+  if (!piloto) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.aviso}>Piloto não encontrado.</Text>
+      </View>
+    );
   }
 
   return (
-    <View style={styles.container}>
-      {erro || !piloto ? (
-        <Text style={styles.mensagem}>{erro || 'Piloto não encontrado.'}</Text>
-      ) : (
-        <>
-          {piloto.headshot_url && (
-            <Image source={{ uri: piloto.headshot_url }} style={styles.foto} />
+    <ScrollView style={styles.container} contentContainerStyle={styles.conteudo}>
+      {piloto.headshot_url && (
+        <Image source={{ uri: piloto.headshot_url }} style={styles.foto} />
+      )}
+      <Text style={styles.nome}>{piloto.full_name}</Text>
+      <Text style={styles.equipe}>{piloto.team_name}</Text>
+
+      <View style={styles.dados}>
+        <Linha rotulo="Número" valor={`#${piloto.driver_number}`} />
+        <Linha rotulo="Sigla" valor={piloto.name_acronym} />
+        <Linha rotulo="Equipe" valor={piloto.team_name} />
+        <Linha rotulo="Posição no campeonato" valor={posicao != null ? `${posicao}º` : '—'} />
+      </View>
+
+      <TouchableOpacity style={styles.botaoCorridas} onPress={alternarCorridas}>
+        <Text style={styles.titulo}>Corridas da temporada</Text>
+        <Text style={styles.seta}>{aberto ? '⌃' : '⌄'}</Text>
+      </TouchableOpacity>
+
+      {aberto && (
+        <View style={styles.lista}>
+          {carregandoCorridas ? (
+            <ActivityIndicator color="#fff" style={styles.aviso} />
+          ) : erroCorridas ? (
+            <Text style={styles.aviso}>Não foi possível carregar as corridas.</Text>
+          ) : corridas.length === 0 ? (
+            <Text style={styles.aviso}>Nenhuma corrida disponível.</Text>
+          ) : (
+            corridas.map(corrida => (
+              <View key={corrida.id} style={styles.corrida}>
+                <Text style={styles.nomeCorrida}>GP de {corrida.nome}</Text>
+                <Text style={styles.info}>Posição: {corrida.posicao}</Text>
+                <Text style={styles.info}>Melhor volta: {corrida.volta}</Text>
+              </View>
+            ))
           )}
-          <Text style={styles.nome}>{piloto.full_name}</Text>
-          <Linha rotulo="Número" valor={piloto.driver_number} />
-          <Linha rotulo="Sigla" valor={piloto.name_acronym} />
-          <Linha rotulo="Equipe" valor={piloto.team_name} />
-          <Linha rotulo="País" valor={piloto.country_code || '—'} />
-          <Linha rotulo="Nome na TV" valor={piloto.broadcast_name} />
-        </>
+        </View>
       )}
 
-      <TouchableOpacity style={styles.botao} onPress={() => navigation.popToTop()}>
-        <Text style={styles.textoBotao}>Voltar à Tela Principal</Text>
+      <TouchableOpacity style={styles.voltar} onPress={() => navigation.popToTop()}>
+        <Text style={styles.textoVoltar}>Voltar à Tela Principal</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -49,27 +102,42 @@ function Linha({ rotulo, valor }) {
   return (
     <View style={styles.linha}>
       <Text style={styles.rotulo}>{rotulo}</Text>
-      <Text style={styles.texto}>{valor}</Text>
+      <Text style={styles.valor}>{valor ?? '—'}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', backgroundColor: '#000', padding: 20 },
-  foto: { width: 180, height: 180, borderRadius: 90, backgroundColor: '#fff', marginTop: 10 },
-  nome: { color: '#fff', fontSize: 26, fontWeight: 'bold', marginTop: 12, marginBottom: 16 },
-  linha: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    marginVertical: 4,
+  container: { flex: 1, backgroundColor: '#000' },
+  conteudo: { padding: 24, paddingBottom: 40 },
+  foto: {
+    width: 150, height: 150, borderRadius: 75,
+    backgroundColor: '#fff', alignSelf: 'center', marginTop: 20
   },
-  rotulo: { color: '#555', fontSize: 16 },
-  texto: { color: '#000', fontSize: 16, fontWeight: 'bold' },
-  mensagem: { color: '#fff', fontSize: 16 },
-  botao: { backgroundColor: '#fff', padding: 14, borderRadius: 10, alignItems: 'center', width: '100%', marginTop: 'auto' },
-  textoBotao: { color: '#000', fontSize: 16, fontWeight: 'bold' },
+  nome: {
+    color: '#fff', fontSize: 28, fontWeight: 'bold',
+    textAlign: 'center', marginTop: 16
+  },
+  equipe: { color: '#999', fontSize: 16, textAlign: 'center', marginTop: 4 },
+  dados: { marginTop: 32 },
+  linha: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    paddingVertical: 18, borderBottomWidth: 1, borderBottomColor: '#292929'
+  },
+  rotulo: { color: '#aaa', fontSize: 15, flex: 1 },
+  valor: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  botaoCorridas: {
+    backgroundColor: '#1c1c1e', borderRadius: 12,
+    padding: 18, marginTop: 30, flexDirection: 'row',
+    justifyContent: 'space-between', alignItems: 'center'
+  },
+  titulo: { color: '#fff', fontSize: 17, fontWeight: '600' },
+  seta: { color: '#aaa', fontSize: 24 },
+  lista: { marginTop: 8 },
+  corrida: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#292929' },
+  nomeCorrida: { color: '#fff', fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  info: { color: '#aaa', fontSize: 14, marginTop: 3 },
+  aviso: { color: '#aaa', padding: 16 },
+  voltar: { padding: 18, alignItems: 'center', marginTop: 36 },
+  textoVoltar: { color: '#aaa', fontSize: 15 }
 });

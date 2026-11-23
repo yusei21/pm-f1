@@ -3,17 +3,13 @@ import {
   View, Text, Image, TouchableOpacity, ScrollView,
   ActivityIndicator, StyleSheet
 } from 'react-native';
-import { buscarPiloto, buscarPosicao, buscarCorridas } from '../api';
+import { buscarPiloto, buscarPosicao } from '../api';
 
 export default function DetalhesScreen({ route, navigation }) {
   const { numero, sessionKey } = route.params;
   const [piloto, setPiloto] = useState(null);
   const [posicao, setPosicao] = useState(null);
-  const [corridas, setCorridas] = useState([]);
-  const [aberto, setAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
-  const [carregandoCorridas, setCarregandoCorridas] = useState(false);
-  const [erroCorridas, setErroCorridas] = useState(false);
 
   useEffect(() => {
     buscarPiloto(numero, sessionKey)
@@ -24,20 +20,6 @@ export default function DetalhesScreen({ route, navigation }) {
     buscarPosicao(numero).then(setPosicao).catch(() => setPosicao(null));
   }, [numero, sessionKey]);
 
-  async function alternarCorridas() {
-    setAberto(!aberto);
-    if (aberto || corridas.length || carregandoCorridas) return;
-
-    setCarregandoCorridas(true);
-    setErroCorridas(false);
-    try {
-      setCorridas(await buscarCorridas(numero));
-    } catch {
-      setErroCorridas(true);
-    } finally {
-      setCarregandoCorridas(false);
-    }
-  }
 
   if (carregando) {
     return <ActivityIndicator style={styles.container} size="large" color="#fff" />;
@@ -66,30 +48,6 @@ export default function DetalhesScreen({ route, navigation }) {
         <Linha rotulo="Posição no campeonato" valor={posicao != null ? `${posicao}º` : '—'} />
       </View>
 
-      <TouchableOpacity style={styles.botaoCorridas} onPress={alternarCorridas}>
-        <Text style={styles.titulo}>Últimas 3 corridas</Text>
-        <Text style={styles.seta}>{aberto ? '⌃' : '⌄'}</Text>
-      </TouchableOpacity>
-
-      {aberto && (
-        <View style={styles.lista}>
-          {carregandoCorridas ? (
-            <ActivityIndicator color="#fff" style={styles.aviso} />
-          ) : erroCorridas ? (
-            <Text style={styles.aviso}>Não foi possível carregar as corridas.</Text>
-          ) : corridas.length === 0 ? (
-            <Text style={styles.aviso}>Nenhuma corrida disponível.</Text>
-          ) : (
-            corridas.map(corrida => (
-              <View key={corrida.id} style={styles.corrida}>
-                <Text style={styles.nomeCorrida}>GP de {corrida.nome}</Text>
-                <Text style={styles.info}>Posição: {corrida.posicao}</Text>
-                <Text style={styles.info}>Melhor volta: {corrida.volta}</Text>
-              </View>
-            ))
-          )}
-        </View>
-      )}
 
       <TouchableOpacity style={styles.voltar} onPress={() => navigation.popToTop()}>
         <Text style={styles.textoVoltar}>Voltar à Tela Principal</Text>
@@ -126,18 +84,6 @@ const styles = StyleSheet.create({
   },
   rotulo: { color: '#aaa', fontSize: 15, flex: 1 },
   valor: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  botaoCorridas: {
-    backgroundColor: '#1c1c1e', borderRadius: 12,
-    padding: 18, marginTop: 30, flexDirection: 'row',
-    justifyContent: 'space-between', alignItems: 'center'
-  },
-  titulo: { color: '#fff', fontSize: 17, fontWeight: '600' },
-  seta: { color: '#aaa', fontSize: 24 },
-  lista: { marginTop: 8 },
-  corrida: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#292929' },
-  nomeCorrida: { color: '#fff', fontSize: 16, fontWeight: '600', marginBottom: 8 },
-  info: { color: '#aaa', fontSize: 14, marginTop: 3 },
-  aviso: { color: '#aaa', padding: 16 },
   voltar: { padding: 18, alignItems: 'center', marginTop: 36 },
   textoVoltar: { color: '#aaa', fontSize: 15 }
 });

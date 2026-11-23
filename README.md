@@ -24,7 +24,7 @@ Se não conectar, experimente `npx expo start --tunnel`.
 |---|---|
 | **Home** | Acesso à lista de pilotos e à tela Sobre |
 | **Pilotos** | Lista de pilotos com foto, nome, equipe e número |
-| **Detalhes** | Foto, número, sigla, equipe e posição no campeonato; seção expansível com todas as corridas já realizadas na temporada atual, posição final e melhor volta do piloto |
+| **Detalhes** | Foto, número, sigla, equipe e posição no campeonato; seção expansível com as três últimas corridas já realizadas na temporada atual, posição final e melhor volta do piloto |
 | **Sobre** | Informações sobre a API |
 
 ## API utilizada

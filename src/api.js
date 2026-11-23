@@ -1,49 +1,48 @@
-// Consumo da API REST OpenF1 (https://openf1.org).
-const BASE_URL = 'https://api.openf1.org/v1';
+const URL_BASE = 'https://api.openf1.org/v1';
 
-// ENDPOINT 1 — Listar recursos: pilotos da última sessão de F1
-// GET https://api.openf1.org/v1/drivers?session_key=latest
+// Busca os pilotos da sessão mais recente e remove números repetidos.
 export async function listarPilotos() {
-  const resposta = await fetch(`${BASE_URL}/drivers?session_key=latest`);
+  const resposta = await fetch(`${URL_BASE}/drivers?session_key=latest`);
   if (!resposta.ok) throw new Error('Erro ao buscar pilotos: ' + resposta.status);
   const dados = await resposta.json();
 
-  // Remove pilotos repetidos (pelo número) e ordena por equipe
   const unicos = dados.filter(
-    (p, i) => dados.findIndex((x) => x.driver_number === p.driver_number) === i
+    (piloto, indice) => dados.findIndex(
+      (outroPiloto) => outroPiloto.driver_number === piloto.driver_number
+    ) === indice
   );
-  return unicos.sort((a, b) => (a.team_name || '').localeCompare(b.team_name || ''));
+  return unicos.sort((primeiro, segundo) =>
+    (primeiro.team_name || '').localeCompare(segundo.team_name || '')
+  );
 }
 
-// ENDPOINT 2 — Detalhar um recurso: um piloto pelo número
-// GET https://api.openf1.org/v1/drivers?session_key={sessao}&driver_number=44
-export async function buscarPiloto(numero, sessionKey) {
+// Busca os dados de um piloto na sessão selecionada.
+export async function buscarPiloto(numero, chaveSessao) {
   const resposta = await fetch(
-    `${BASE_URL}/drivers?session_key=${sessionKey}&driver_number=${numero}`
+    `${URL_BASE}/drivers?session_key=${chaveSessao}&driver_number=${numero}`
   );
   if (!resposta.ok) throw new Error('Erro ao buscar piloto: ' + resposta.status);
   const dados = await resposta.json();
-  return dados[0]; // a API devolve uma lista; pegamos o primeiro item
+  return dados[0];
 }
 
-
-// Consulta simples à OpenF1
+// Faz uma consulta à API e devolve o resultado em JSON.
 async function consultar(caminho) {
-  const resposta = await fetch(`${BASE_URL}/${caminho}`);
+  const resposta = await fetch(`${URL_BASE}/${caminho}`);
   if (!resposta.ok) throw new Error('Erro ao consultar a OpenF1');
   return resposta.json();
 }
 
-// Corridas já realizadas na temporada atual, da mais recente para a mais antiga
+// Lista as corridas já encerradas no ano atual.
 async function listarCorridasDaTemporada() {
   const ano = new Date().getFullYear();
   const sessoes = await consultar(`sessions?year=${ano}&session_name=Race`);
   return sessoes
-    .filter(s => s.date_end && new Date(s.date_end) < new Date())
-    .sort((a, b) => new Date(b.date_start) - new Date(a.date_start));
+    .filter(sessao => sessao.date_end && new Date(sessao.date_end) < new Date())
+    .sort((primeira, segunda) => new Date(segunda.date_start) - new Date(primeira.date_start));
 }
 
-// Posição mais recente disponível no campeonato de pilotos
+// Procura a posição mais recente do piloto no campeonato.
 export async function buscarPosicao(numero) {
   const sessoes = await listarCorridasDaTemporada();
   for (const sessao of sessoes) {

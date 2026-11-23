@@ -1,23 +1,24 @@
 import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-export default function HomeScreen({ navigation }) {
+// Mostra o logo e os botões de acesso às outras telas.
+export default function TelaInicial({ navigation: navegacao }) {
   return (
-    <View style={styles.container}>
-      <Image source={require('../../assets/f1-logo-white.png')} style={styles.logo} resizeMode="contain" accessibilityLabel="Logo da Fórmula 1" />
-      <Text style={styles.titulo}>Pilotos F1</Text>
+    <View style={estilos.container}>
+      <Image source={require('../../assets/f1-logo-white.png')} style={estilos.logo} resizeMode="contain" accessibilityLabel="Logo da Fórmula 1" />
+      <Text style={estilos.titulo}>Pilotos F1</Text>
 
-      <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('Pilotos')}>
-        <Text style={styles.textoBotao}>Listar Pilotos</Text>
+      <TouchableOpacity style={estilos.botao} onPress={() => navegacao.navigate('Pilotos')}>
+        <Text style={estilos.textoBotao}>Listar Pilotos</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('Sobre')}>
-        <Text style={styles.textoBotao}>Sobre</Text>
+      <TouchableOpacity style={estilos.botao} onPress={() => navegacao.navigate('Sobre')}>
+        <Text style={estilos.textoBotao}>Sobre</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const estilos = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',

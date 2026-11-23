@@ -5,67 +5,67 @@ import {
 } from 'react-native';
 import { buscarPiloto, buscarPosicao } from '../api';
 
-export default function DetalhesScreen({ route, navigation }) {
-  const { numero, sessionKey } = route.params;
-  const [piloto, setPiloto] = useState(null);
-  const [posicao, setPosicao] = useState(null);
-  const [carregando, setCarregando] = useState(true);
+// Mostra os dados e a posição do piloto selecionado.
+export default function TelaDetalhes({ route: rota, navigation: navegacao }) {
+  const { numero, chaveSessao } = rota.params;
+  const [piloto, definirPiloto] = useState(null);
+  const [posicao, definirPosicao] = useState(null);
+  const [carregando, definirCarregando] = useState(true);
 
   useEffect(() => {
-    buscarPiloto(numero, sessionKey)
-      .then(setPiloto)
-      .catch(() => setPiloto(null))
-      .finally(() => setCarregando(false));
+    buscarPiloto(numero, chaveSessao)
+      .then(definirPiloto)
+      .catch(() => definirPiloto(null))
+      .finally(() => definirCarregando(false));
 
-    buscarPosicao(numero).then(setPosicao).catch(() => setPosicao(null));
-  }, [numero, sessionKey]);
-
+    buscarPosicao(numero).then(definirPosicao).catch(() => definirPosicao(null));
+  }, [numero, chaveSessao]);
 
   if (carregando) {
-    return <ActivityIndicator style={styles.container} size="large" color="#fff" />;
+    return <ActivityIndicator style={estilos.container} size="large" color="#fff" />;
   }
 
   if (!piloto) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.aviso}>Piloto não encontrado.</Text>
+      <View style={estilos.container}>
+        <Text style={estilos.aviso}>Piloto não encontrado.</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.conteudo}>
+    <ScrollView style={estilos.container} contentContainerStyle={estilos.conteudo}>
       {piloto.headshot_url && (
-        <Image source={{ uri: piloto.headshot_url }} style={styles.foto} />
+        <Image source={{ uri: piloto.headshot_url }} style={estilos.foto} />
       )}
-      <Text style={styles.nome}>{piloto.full_name}</Text>
-      <Text style={styles.equipe}>{piloto.team_name}</Text>
+      <Text style={estilos.nome}>{piloto.full_name}</Text>
+      <Text style={estilos.equipe}>{piloto.team_name}</Text>
 
-      <View style={styles.dados}>
+      <View style={estilos.dados}>
         <Linha rotulo="Número" valor={`#${piloto.driver_number}`} />
         <Linha rotulo="Sigla" valor={piloto.name_acronym} />
         <Linha rotulo="Equipe" valor={piloto.team_name} />
         <Linha rotulo="Posição no campeonato" valor={posicao != null ? `${posicao}º` : '—'} />
       </View>
 
-
-      <TouchableOpacity style={styles.voltar} onPress={() => navigation.popToTop()}>
-        <Text style={styles.textoVoltar}>Voltar à Tela Principal</Text>
+      <TouchableOpacity style={estilos.voltar} onPress={() => navegacao.popToTop()}>
+        <Text style={estilos.textoVoltar}>Voltar à Tela Principal</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 }
 
+// Mostra um dado do piloto com seu rótulo.
 function Linha({ rotulo, valor }) {
   return (
-    <View style={styles.linha}>
-      <Text style={styles.rotulo}>{rotulo}</Text>
-      <Text style={styles.valor}>{valor ?? '—'}</Text>
+    <View style={estilos.linha}>
+      <Text style={estilos.rotulo}>{rotulo}</Text>
+      <Text style={estilos.valor}>{valor ?? '—'}</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const estilos = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   conteudo: { padding: 24, paddingBottom: 40 },
   foto: {

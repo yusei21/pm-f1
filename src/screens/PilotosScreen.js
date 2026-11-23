@@ -4,72 +4,70 @@ import {
 } from 'react-native';
 import { listarPilotos } from '../api';
 
-// Tela de Listagem: busca os pilotos na API e mostra numa FlatList
-export default function PilotosScreen({ navigation }) {
-  const [pilotos, setPilotos] = useState([]);     // lista vinda da API
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState(null);
+// Carrega os pilotos e mostra a lista para seleção.
+export default function TelaPilotos({ navigation: navegacao }) {
+  const [pilotos, definirPilotos] = useState([]);
+  const [carregando, definirCarregando] = useState(true);
+  const [erro, definirErro] = useState(null);
 
-  // useEffect com [] roda uma vez, quando a tela abre
   useEffect(() => {
     listarPilotos()
-      .then((dados) => setPilotos(dados))
-      .catch((e) => setErro(e.message))
-      .finally(() => setCarregando(false));
+      .then((dados) => definirPilotos(dados))
+      .catch((falha) => definirErro(falha.message))
+      .finally(() => definirCarregando(false));
   }, []);
 
   if (carregando) {
-    return <ActivityIndicator size="large" color="#fff" style={styles.container} />;
+    return <ActivityIndicator size="large" color="#fff" style={estilos.container} />;
   }
   if (erro) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.erro}>{erro}</Text>
-        <TouchableOpacity style={styles.botaoVoltar} onPress={() => navigation.popToTop()}>
-          <Text style={styles.textoBotao}>Voltar à Tela Principal</Text>
+      <View style={estilos.container}>
+        <Text style={estilos.erro}>{erro}</Text>
+        <TouchableOpacity style={estilos.botaoVoltar} onPress={() => navegacao.popToTop()}>
+          <Text style={estilos.textoBotao}>Voltar à Tela Principal</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={estilos.container}>
       <FlatList
         data={pilotos}
-        keyExtractor={(item) => String(item.driver_number)}
-        renderItem={({ item }) => (
-          // Cada item é clicável e abre a tela de Detalhes, passando o número do piloto
+        keyExtractor={(piloto) => String(piloto.driver_number)}
+        renderItem={({ item: piloto }) => (
           <TouchableOpacity
-            style={styles.item}
-            onPress={() => navigation.navigate('Detalhes', {
-              numero: item.driver_number,
-              sessionKey: item.session_key,
+            style={estilos.cartao}
+            onPress={() => navegacao.navigate('Detalhes', {
+              numero: piloto.driver_number,
+              chaveSessao: piloto.session_key,
             })}
           >
-            {item.headshot_url ? (
-              <Image source={{ uri: item.headshot_url }} style={styles.foto} />
+            {piloto.headshot_url ? (
+              <Image source={{ uri: piloto.headshot_url }} style={estilos.foto} />
             ) : (
-              <View style={[styles.foto, { backgroundColor: '#ddd' }]} />
+              <View style={[estilos.foto, { backgroundColor: '#ddd' }]} />
             )}
             <View style={{ flex: 1 }}>
-              <Text style={styles.nome}>{item.full_name}</Text>
-              <Text style={styles.equipe}>{item.team_name}</Text>
+              <Text style={estilos.nome}>{piloto.full_name}</Text>
+              <Text style={estilos.equipe}>{piloto.team_name}</Text>
             </View>
-            <Text style={styles.numero}>#{item.driver_number}</Text>
+            <Text style={estilos.numero}>#{piloto.driver_number}</Text>
           </TouchableOpacity>
         )}
       />
 
-      <TouchableOpacity style={styles.botaoVoltar} onPress={() => navigation.popToTop()}>
-        <Text style={styles.textoBotao}>Voltar à Tela Principal</Text>
+      <TouchableOpacity style={estilos.botaoVoltar} onPress={() => navegacao.popToTop()}>
+        <Text style={estilos.textoBotao}>Voltar à Tela Principal</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const estilos = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
-  item: {
+  cartao: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',

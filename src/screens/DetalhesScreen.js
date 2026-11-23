@@ -67,7 +67,7 @@ export default function DetalhesScreen({ route, navigation }) {
       </View>
 
       <TouchableOpacity style={styles.botaoCorridas} onPress={alternarCorridas}>
-        <Text style={styles.titulo}>Corridas da temporada</Text>
+        <Text style={styles.titulo}>Últimas 3 corridas</Text>
         <Text style={styles.seta}>{aberto ? '⌃' : '⌄'}</Text>
       </TouchableOpacity>
 

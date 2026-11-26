@@ -26,11 +26,11 @@ export async function buscarPiloto(numero, chaveSessao) {
   return dados[0];
 }
 
-// Professor, aqui acabei fazendo uma pequena gambiarra devido a uma limitação da API.
+// Professor, aqui acabei fazendo uma pequena gambiarra devido a uma limitação da API
 // Usei um for junto com um try/catch para percorrer as corridas da mais recente
 // até a mais antiga, pois nem sempre os dados do campeonato estão disponíveis
 // na última corrida. Caso não encontre a posição do piloto, o código tenta
-// buscar na corrida anterior até encontrar um resultado válido.
+// buscar na corrida anterior até encontrar um resultado válido
 
 // Faz uma consulta à API e devolve o resulta
 async function consultar(caminho) {

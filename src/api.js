@@ -1,6 +1,6 @@
-const URL_BASE = 'https://api.openf1.org/v1';
+nst URL_BASE = 'https://api.openf1.org/v1';
 
-// Busca os pilotos da sessão mais recente e remove números repetidos.
+// Busca os pilotos da sessão mais recente e remove números repetidos
 export async function listarPilotos() {
   const resposta = await fetch(`${URL_BASE}/drivers?session_key=latest`);
   if (!resposta.ok) throw new Error('Erro ao buscar pilotos: ' + resposta.status);
@@ -16,7 +16,7 @@ export async function listarPilotos() {
   );
 }
 
-// Busca os dados de um piloto na sessão selecionada.
+// Busca os dados de um piloto na sessão selecionada
 export async function buscarPiloto(numero, chaveSessao) {
   const resposta = await fetch(
     `${URL_BASE}/drivers?session_key=${chaveSessao}&driver_number=${numero}`
@@ -26,14 +26,20 @@ export async function buscarPiloto(numero, chaveSessao) {
   return dados[0];
 }
 
-// Faz uma consulta à API e devolve o resultado em JSON.
+// Professor, aqui acabei fazendo uma pequena gambiarra devido a uma limitação da API.
+// Usei um for junto com um try/catch para percorrer as corridas da mais recente
+// até a mais antiga, pois nem sempre os dados do campeonato estão disponíveis
+// na última corrida. Caso não encontre a posição do piloto, o código tenta
+// buscar na corrida anterior até encontrar um resultado válido.
+
+// Faz uma consulta à API e devolve o resulta
 async function consultar(caminho) {
   const resposta = await fetch(`${URL_BASE}/${caminho}`);
   if (!resposta.ok) throw new Error('Erro ao consultar a OpenF1');
   return resposta.json();
 }
 
-// Lista as corridas já encerradas no ano atual.
+// Lista as corridas já encerradas no ano atual
 async function listarCorridasDaTemporada() {
   const ano = new Date().getFullYear();
   const sessoes = await consultar(`sessions?year=${ano}&session_name=Race`);
@@ -42,7 +48,7 @@ async function listarCorridasDaTemporada() {
     .sort((primeira, segunda) => new Date(segunda.date_start) - new Date(primeira.date_start));
 }
 
-// Procura a posição mais recente do piloto no campeonato.
+// Procura a posição mais recente do piloto no campeonato
 export async function buscarPosicao(numero) {
   const sessoes = await listarCorridasDaTemporada();
   for (const sessao of sessoes) {

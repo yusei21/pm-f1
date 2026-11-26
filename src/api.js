@@ -1,4 +1,4 @@
-nst URL_BASE = 'https://api.openf1.org/v1';
+const URL_BASE = 'https://api.openf1.org/v1';
 
 // Busca os pilotos da sessão mais recente e remove números repetidos
 export async function listarPilotos() {

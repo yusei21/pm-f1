@@ -7,14 +7,14 @@ import TelaPilotos from './src/screens/PilotosScreen';
 import TelaDetalhes from './src/screens/DetalhesScreen';
 import TelaSobre from './src/screens/SobreScreen';
 
-const Pilha = createNativeStackNavigator();
+const Stack = createNativeStackNavigator();
 
-// Configura as telas e a navegação do aplicativo.
+// Configura as telas e a navegação do aplicativo
 export default function Aplicativo() {
   return (
     <NavigationContainer>
       <StatusBar style="light" />
-      <Pilha.Navigator
+      <Stack.Navigator
         initialRouteName="Inicio"
         screenOptions={{
           headerStyle: { backgroundColor: '#000' },
@@ -22,11 +22,11 @@ export default function Aplicativo() {
           contentStyle: { backgroundColor: '#000' },
         }}
       >
-        <Pilha.Screen name="Inicio" component={TelaInicial} options={{ headerShown: false }} />
-        <Pilha.Screen name="Pilotos" component={TelaPilotos} options={{ title: 'Pilotos' }} />
-        <Pilha.Screen name="Detalhes" component={TelaDetalhes} options={{ title: 'Detalhes do Piloto' }} />
-        <Pilha.Screen name="Sobre" component={TelaSobre} options={{ title: 'Sobre' }} />
-      </Pilha.Navigator>
+        <Stack.Screen name="Inicio" component={TelaInicial} options={{ headerShown: false }} />
+        <Stack.Screen name="Pilotos" component={TelaPilotos} options={{ title: 'Pilotos' }} />
+        <Stack.Screen name="Detalhes" component={TelaDetalhes} options={{ title: 'Detalhes do Piloto' }} />
+        <Stack.Screen name="Sobre" component={TelaSobre} options={{ title: 'Sobre' }} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
